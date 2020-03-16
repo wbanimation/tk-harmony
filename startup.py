@@ -16,6 +16,7 @@ import hashlib
 import socket
 import platform
 import subprocess
+from os.path import expanduser
 
 import sgtk
 from sgtk.platform.errors import TankEngineInitError
@@ -95,15 +96,21 @@ def copytree_multi(src, dst, symlinks=False, ignore=None):
 
 
 def scripts_path_for_exec(exec_path):
-    version_output_regex = ("(?P<company>Toon Boom) (?P<product>\w+) (?P<edition>\w+)\r\n"
-        "(?P=product) (?P=edition) \((?P=product) *(?P=edition)(.exe)*\) version (?P<major_version>\d*)\.*(?P<minor_version>\d*)\.*(?P<build_version>\d*) build (?P<build>\d*) (?P<build_date>.*)"
-    )
-    exec_version = subprocess.check_output(
-        [exec_path, "-v"], stderr=subprocess.STDOUT
+    version_output_regex = (
+        "(?P<company>Toon Boom) (?P<product>\w+) (?P<edition>\w+) (?P=product) (?P=edition) \((?P=product) *(?P=edition)(.exe)*\) version (?P<major_version>\d*)\.*(?P<minor_version>\d*)\.*(?P<build_version>\d*) build (?P<build>\d*) (?P<build_date>.*) (?P<build_time>.*)"
     )
 
+    if platform.system() == "Darwin":
+        exec_version = subprocess.check_output(
+            [os.path.join(exec_path,'Contents','MacOS','Harmony Premium'), "-v"], stderr=subprocess.STDOUT
+        )
+    else :
+        exec_version = subprocess.check_output(
+            [exec_path, "-v"], stderr=subprocess.STDOUT
+        )
+
     scripts_path = None
-    exec_info_match = re.match(version_output_regex, exec_version, re.MULTILINE)
+    exec_info_match = re.match(version_output_regex, exec_version.replace('\n',' '))
 
     if exec_info_match:
         exec_info = exec_info_match.groupdict()
@@ -114,7 +121,7 @@ def scripts_path_for_exec(exec_path):
         elif platform.system() == "Linux":
             path_root = os.path.expandvars("~")
         elif platform.system() == "Darwin":
-            path_root = os.path.expandvars("~/Library/Preferences")
+            path_root = os.path.expanduser("~/Library/Preferences")
 
         if path_root:
             scripts_path = os.path.join(
@@ -164,6 +171,7 @@ class HarmonyLauncher(SoftwareLauncher):
         "platform": r" \(x86\)",
         "editiondir": r"\w+",
         "edition": r"\w+",
+        "editionexec": r"\w+",
     }
 
     # This dictionary defines a list of executable template strings for each
@@ -180,7 +188,8 @@ class HarmonyLauncher(SoftwareLauncher):
             "/opt/ToonBoomAnimation/harmony{editiondir}_{version}/lnx86_64/bin/Harmony{edition}",
         ],
         "Darwin": [
-            "/Applications/Toon Boom Harmony {version} {editiondir}/Harmony {edition}.app/Contents/MacOS/Harmony {edition}"
+#             "/Applications/Toon Boom Harmony {version} {editiondir}/Harmony {edition}.app/Contents/MacOS/Harmony {editionexec}"
+            "/Applications/Toon Boom Harmony {version} {editiondir}/Harmony {edition}.app"
         ],
     }
 
@@ -289,8 +298,10 @@ class HarmonyLauncher(SoftwareLauncher):
         )
         required_env["SGTK_HARMONY_STARTUP_TEMPLATE"] = xtage.replace("\\", "/")
 
-        args = " -debug"
-        args += ' "' + xtage + '"'
+
+        args = xtage
+#         args = " -debug"
+#         args += ' "' + xtage + '"'
 
         self.logger.debug("Launch info: %s" % args)
 
