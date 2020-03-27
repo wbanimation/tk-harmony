@@ -166,7 +166,7 @@ class Application(QTcpSocketClient):
         version_is_used = "version" in work_template.keys
 
         if name_is_used:
-            fields["name"] = "scene"
+            fields["name"] = ""
         if ext_is_used:
             fields["extension"] = "xstage"
 
@@ -383,5 +383,36 @@ class Application(QTcpSocketClient):
     def get_sound_column_filenames(self, column_name):
         result = self.send_and_receive_command(
             "GET_SOUND_COLUMN_FILENAMES", column_name=column_name
+        )
+        return result
+
+    # wba
+    def export_quicktime(self, displayName,startFrame,lastFrame,withSound,resX,resY,dstPath,displayModule,generateThumbnail,thumbnailFrame):
+        result = self.send_and_receive_command(
+            "EXPORT_QUICKTIME",
+            displayName=displayName,
+            startFrame=startFrame,
+            lastFrame=lastFrame,
+            withSound=withSound,
+            resX=resX,
+            resY=resY,
+            dstPath=dstPath,
+            displayModule=displayModule,
+            generateThumbnail=generateThumbnail,
+            thumbnailFrame=thumbnailFrame
+            )
+        return result
+
+    def get_current_resolution(self):
+    
+        result = self.send_and_receive_command(
+             "GET_CURRENT_RESOLUTION"
+        )
+        return result
+
+    def get_default_display(self):
+    
+        result = self.send_and_receive_command(
+             "GET_DEFAULT_DISPLAY"
         )
         return result
