@@ -335,6 +335,12 @@ function import_movie(filename, parent)
   return read_node;
 }
 
+function export_movie(displayName,startFrame,lastFrame,withSound,resX,resY,dstPath,displayModule,generateThumbnail,thumbnailFrame)
+{
+
+  var exported = exporter.exportToQuicktime(displayName,startFrame,lastFrame,withSound,resX,resY,dstPath,displayModule,generateThumbnail,thumbnailFrame);
+  return exported;
+}
 
 // -----------------------------------------------------------------------------
 // Meta Data related functions
@@ -1168,6 +1174,21 @@ function Engine()
         return frame_rate;
     }
 
+    self.get_current_resolution = function(data)
+    {
+        var currentResolutionX = scene.currentResolutionX();
+        var currentResolutionY = scene.currentResolutionY();
+
+        return {'currentResolutionX':currentResolutionX, 'currentResolutionY':currentResolutionY};
+    }
+
+    self.get_default_display = function(data)
+    {
+        var defaultDisplay = scene.getDefaultDisplay();
+
+        return defaultDisplay;
+    }
+
     // Actions
     self.import_drawing = function(data)
     {
@@ -1198,6 +1219,22 @@ function Engine()
         scene.endUndoRedoAccum();
 
         return read_node;
+    }
+
+    self.export_quicktime = function(data)
+    {
+        var displayName = data.displayName;
+        var startFrame = data.startFrame;
+        var lastFrame = data.lastFrame;
+        var withSound = data.withSound;
+        var resX = data.resX;
+        var resY = data.resY;
+        var dstPath = data.dstPath;
+        var displayModule = data.displayModule;
+        var generateThumbnail = data.generateThumbnail;
+        var thumbnailFrame = data.thumbnailFrame;
+        var exported = export_movie(displayName,startFrame,lastFrame,withSound,resX,resY,dstPath,displayModule,generateThumbnail,thumbnailFrame);
+        return exported;
     }
 
     self.get_node_metadata = function(data)
@@ -1339,6 +1376,11 @@ function Engine()
         self.registerCallback("IMPORT_DRAWING",      self.import_drawing);
         self.registerCallback("IMPORT_AUDIO",        self.import_audio);
         self.registerCallback("IMPORT_CLIP",         self.import_clip);
+        
+        // wba actions
+        self.registerCallback("EXPORT_QUICKTIME",    self.export_quicktime);
+        self.registerCallback("GET_CURRENT_RESOLUTION",    self.get_current_resolution);
+        self.registerCallback("GET_DEFAULT_DISPLAY",    self.get_default_display);
 
         // metadata
         self.registerCallback("GET_NODE_METADATA",   self.get_node_metadata);
