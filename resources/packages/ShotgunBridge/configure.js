@@ -338,9 +338,11 @@ function import_movie(filename, parent)
 function export_movie(displayName,startFrame,lastFrame,withSound,resX,resY,dstPath,displayModule,generateThumbnail,thumbnailFrame)
 {
 
-  var exported = exporter.exportToQuicktime(displayName,startFrame,lastFrame,withSound,resX,resY,dstPath,displayModule,generateThumbnail,thumbnailFrame);
-  return exported;
+  result = exporter.exportToQuicktime(displayName,startFrame,lastFrame,withSound,resX,resY,dstPath,displayModule,generateThumbnail,thumbnailFrame);
+  
+  return result;
 }
+
 
 // -----------------------------------------------------------------------------
 // Meta Data related functions
@@ -776,6 +778,8 @@ function Server(host, port)
         var result = null;
         var st_response = new QTime();
         st_response.start();
+        
+//         self.MAX_READ_RESPONSE_TIME = 500000;
 
         self.connection.waitForReadyRead(self.MAX_READ_RESPONSE_TIME);
         while (true)
