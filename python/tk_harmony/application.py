@@ -388,7 +388,7 @@ class Application(QTcpSocketClient):
 
     # wba
     def export_quicktime(self, displayName,startFrame,lastFrame,withSound,resX,resY,dstPath,displayModule,generateThumbnail,thumbnailFrame):
-        result = self.send_and_receive_command(
+        results = self.send_and_receive_command(
             "EXPORT_QUICKTIME",
             displayName=displayName,
             startFrame=startFrame,
@@ -401,7 +401,7 @@ class Application(QTcpSocketClient):
             generateThumbnail=generateThumbnail,
             thumbnailFrame=thumbnailFrame
             )
-        return result
+        return results
 
     def get_current_resolution(self):
     
